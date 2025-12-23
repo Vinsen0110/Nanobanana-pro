@@ -293,7 +293,7 @@
 
     <script>
        
-const API_URL = "https://ai.t8star.cn/v1/images/edits";
+const API_URL = "https://api.bltcy.ai/v1/images/edits";
 
 // 如果要换回去，把上面那行网址替换下面这行
 // const API_URL = "https://ai.t8star.cn/v1/images/edits";(贞贞T8工坊)
@@ -681,14 +681,32 @@ const API_URL = "https://ai.t8star.cn/v1/images/edits";
             if (validImages.length > 0) { const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]); }
             const startTime = Date.now(); const formData = new FormData();
             formData.append('model', modelName); 
-formData.append('prompt', prompt); 
-formData.append('aspect_ratio', ratio); 
+formData.append('prompt', prompt);
 
-// === 修改开始：加一个判断 ===
-// 只有当模型名字里包含 'banana-2' 时，才发送分辨率参数
-if (modelName.includes('banana-2')) {
+// === 智能参数过滤（修复版） ===
+// 判断是否为高级版 (banana-2)
+const isAdvanced = modelName.includes('banana-2');
+
+if (isAdvanced) {
+    // === 情况1: nano-banana-2 (高级版) ===
+    // 它支持所有参数，直接发送
+    formData.append('aspect_ratio', ratio);
     formData.append('image_size', size);
+} else {
+    // === 情况2: nano-banana / hd (普通版) ===
+    // 1. 检查用户选的比例是否在官方白名单里 (1:1, 2:3, 3:2, 3:4)
+    const safeRatios = ['1:1', '2:3', '3:2', '3:4'];
+    
+    if (safeRatios.includes(ratio)) {
+        formData.append('aspect_ratio', ratio);
+    } else {
+        // 如果是 16:9 等不支持的比例，这里什么都不做（不发送参数）
+        // 这样服务器就会按默认逻辑处理，而不会报错
+        console.log("当前模型忽略不支持的比例: " + ratio);
+    }
+    // 2. 注意：这里绝对不发 image_size
 }
+// === 修改结束 ===
 // === 修改结束 ===
 
 formData.append('n', batchSize); 
@@ -751,6 +769,7 @@ formData.append('response_format', 'url');
     </script>
 </body>
 </html>
+
 
 
 
