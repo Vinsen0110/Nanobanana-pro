@@ -44,21 +44,49 @@
         .dark .tool-btn { color: #aaa; }
         .dark .tool-btn.active { background-color: #3730a3; color: white; }
         .dark .tool-btn:hover { background-color: #27272a; }
+        
+        .group:hover .group-hover\:block { display: block; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        /* 新增：禁用状态样式 */
+        .option-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; background-color: #f3f4f6; }
+        .dark .option-disabled { background-color: #27272a; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden bg-gray-50 text-gray-800 dark:bg-[#09090b] dark:text-[#e4e4e7]" onclick="closeDropdownOnClickOutside(event)">
 
-    <header class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-20 transition-colors">
+    <header class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50 transition-colors">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-gray-200 shadow-sm shrink-0 overflow-hidden text-purple-500">
                 <i class="fa-solid fa-image text-lg"></i>
             </div>
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">编辑图片</span>
         </div>
+        
         <div class="flex items-center gap-3 text-sm">
-            <a href="https://ai.t8star.cn/register?aff=XUPQ71902" target="_blank" class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm flex items-center gap-1">
-                <i class="fa-solid fa-key"></i> 获取Key
-            </a>
+            <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2" title="当前使用的API接口域名">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span id="current-api-display">检测中...</span>
+            </div>
+
+            <div class="relative group z-50">
+                <button class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded transition shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-key"></i> 获取Key <i class="fa-solid fa-caret-down text-[10px] opacity-80"></i>
+                </button>
+                <div class="absolute top-full right-0 pt-2 w-32 hidden group-hover:block">
+                    <div class="bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5">
+                        <div class="py-1">
+                            <a href="https://ai.t8star.cn/register?aff=XUPQ71902" target="_blank" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#27272a] hover:text-purple-500 dark:hover:text-purple-400 transition">
+                                <i class="fa-solid fa-spa text-pink-400"></i> 贞贞API
+                            </a>
+                            <div class="h-[1px] bg-gray-100 dark:bg-[#27272a] mx-2"></div>
+                            <a href="https://api.bltcy.ai/register?aff=dlam79084" target="_blank" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#27272a] hover:text-blue-500 dark:hover:text-blue-400 transition">
+                                <i class="fa-solid fa-landmark text-blue-400"></i> 柏拉图API
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
             <button onclick="toggleTheme()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i id="theme-icon" class="fa-solid fa-moon"></i></button>
             <button onclick="openSettings()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i class="fa-solid fa-gear"></i></button>
@@ -166,7 +194,6 @@
                     <i class="fa-solid fa-arrow-left"></i> 导入
                 </button>
                 <div class="flex items-center gap-4">
-                    <span id="compare-hint" class="text-[10px] text-purple-500 hidden"><i class="fa-solid fa-circle-half-stroke"></i> 对比模式</span>
                     <button onclick="downloadCurrentImage()" class="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-500 flex items-center gap-2 transition">下载 JPG <i class="fa-solid fa-download"></i></button>
                 </div>
             </div>
@@ -254,12 +281,32 @@
     <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div class="bg-white dark:bg-[#18181b] p-6 rounded-xl w-96 shadow-2xl border border-gray-200 dark:border-[#27272a]">
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-purple-500"></i> API 设置</h3><button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="space-y-4"><div><label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label><input type="password" id="modal-api-key" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500" placeholder="sk-xxxxxxxx"><p class="text-[10px] text-gray-400 mt-1">Key 保存在本地。</p></div><button onclick="saveSettings()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded transition">保存配置</button></div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (自动追加 /v1/images/edits)</label>
+                    <input type="text" id="modal-api-url" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500" placeholder="https://api.bltcy.ai">
+                    
+                    <div class="flex gap-2 mt-2">
+                        <button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
+                            <i class="fa-solid fa-spa"></i> 贞贞: ai.t8star.cn
+                        </button>
+                        <button onclick="fillApiUrl('https://api.bltcy.ai')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
+                            <i class="fa-solid fa-landmark"></i> 柏拉图: api.bltcy.ai
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label>
+                    <input type="password" id="modal-api-key" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500" placeholder="sk-xxxxxxxx">
+                    <p class="text-[10px] text-gray-400 mt-1">Key 和 URL 配置保存在本地。</p>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded transition">保存配置</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://ai.t8star.cn/v1/images/edits";
+        const DEFAULT_API_URL = "https://api.bltcy.ai"; 
         const MAX_SLOTS = 9;
         let imageSlots = new Array(MAX_SLOTS).fill(null);
         let currentActiveSlot = -1; 
@@ -268,10 +315,8 @@
         let scale = 1, panning = false, pointX = 0, pointY = 0, startX = 0, startY = 0;
         let originalRefImage = null; 
         
-        // === 新增：历史记录数据存储 ===
         let historyData = [];
 
-        // === 升级版涂鸦引擎变量 ===
         const FIXED_PROMPT = "按照图片上的标记对图片进行修改，修改完成后将标记去掉，包括文字和画线";
         let isDrawing = false;
         let ctx = null;
@@ -288,7 +333,15 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('nano_api_key');
-            if (savedKey) document.getElementById('modal-api-key').value = savedKey; else openSettings();
+            if (savedKey) document.getElementById('modal-api-key').value = savedKey; 
+            
+            const savedUrl = localStorage.getItem('nano_api_url');
+            document.getElementById('modal-api-url').value = savedUrl || DEFAULT_API_URL;
+            
+            updateApiDisplay(savedUrl || DEFAULT_API_URL);
+
+            if (!savedKey) openSettings();
+
             const savedTheme = localStorage.getItem('nano_theme');
             const icon = document.getElementById('theme-icon');
             if (savedTheme === 'light') { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-sun text-purple-500'; }
@@ -300,27 +353,65 @@
             });
             renderSlots();
             
-            // === 读取历史记录 ===
             const savedHistory = localStorage.getItem('nano_history_data');
             if (savedHistory) {
                 try {
                     historyData = JSON.parse(savedHistory);
-                    // 倒序渲染
                     for (let i = historyData.length - 1; i >= 0; i--) {
                         renderHistoryItem(historyData[i].url, historyData[i].prompt, historyData[i].duration);
                     }
                 } catch (e) { console.error("History Load Error", e); }
             }
+
+            // === 新增：页面加载时检查模型限制 ===
+            updateModelRestrictions();
         });
 
-        // ============ 本地存储逻辑 ============
+        function fillApiUrl(url) {
+            document.getElementById('modal-api-url').value = url;
+            const input = document.getElementById('modal-api-url');
+            input.classList.add('ring-2', 'ring-purple-500');
+            setTimeout(() => input.classList.remove('ring-2', 'ring-purple-500'), 200);
+        }
+
+        function updateApiDisplay(url) {
+            try {
+                const hostname = new URL(url).hostname;
+                document.getElementById('current-api-display').innerText = "当前: " + hostname;
+            } catch (e) {
+                document.getElementById('current-api-display').innerText = "当前: Custom";
+            }
+        }
+
+        // === 新增：模型限制逻辑 ===
+        function updateModelRestrictions() {
+            const currentUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
+            const isPlato = currentUrl.includes('bltcy.ai');
+            
+            // 找到 HD 选项元素
+            const hdOption = document.querySelector('.model-option[data-val="nano-banana-hd"]');
+            if (!hdOption) return;
+
+            if (isPlato) {
+                // 如果是柏拉图，禁用 HD
+                hdOption.classList.add('option-disabled');
+                
+                // 如果当前选中的就是 HD，强制切回 4K
+                const currentModel = document.getElementById('model-input').value;
+                if (currentModel === 'nano-banana-hd') {
+                    selectModel('nano-banana-2-4k', 'nano-banana-2-4K');
+                }
+            } else {
+                // 其他情况，解除禁用
+                hdOption.classList.remove('option-disabled');
+            }
+        }
+
         function saveHistoryToLocal() {
-            // 限制保存50条
             if (historyData.length > 50) historyData = historyData.slice(0, 50);
             localStorage.setItem('nano_history_data', JSON.stringify(historyData));
         }
 
-        // ============ 重绘引擎 ============
         function redrawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if(baseImage) { ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height); }
@@ -503,7 +594,21 @@
         }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function saveSettings() { const key = document.getElementById('modal-api-key').value.trim(); if (key) { localStorage.setItem('nano_api_key', key); closeSettings(); } else alert("请输入API Key"); }
+        
+        function saveSettings() { 
+            const key = document.getElementById('modal-api-key').value.trim(); 
+            const url = document.getElementById('modal-api-url').value.trim();
+            if (key) { 
+                localStorage.setItem('nano_api_key', key); 
+                localStorage.setItem('nano_api_url', url || DEFAULT_API_URL);
+                updateApiDisplay(url || DEFAULT_API_URL); 
+                // === 新增：保存时更新模型限制 ===
+                updateModelRestrictions();
+                closeSettings(); 
+            } else { 
+                alert("请输入API Key"); 
+            } 
+        }
 
         const leftPanel = document.getElementById('left-panel'), resizerSidebar = document.getElementById('resizer-sidebar');
         const taskPanel = document.getElementById('task-panel'), resizerTasklist = document.getElementById('resizer-tasklist');
@@ -554,6 +659,14 @@
         async function submitTask() {
             const apiKey = localStorage.getItem('nano_api_key');
             if (!apiKey) { openSettings(); return; }
+
+            let currentApiUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
+            currentApiUrl = currentApiUrl.replace(/\/+$/, "");
+
+            if (!currentApiUrl.endsWith('/v1/images/edits')) {
+                currentApiUrl += '/v1/images/edits';
+            }
+
             const prompt = document.getElementById('prompt-input').value.trim();
             const ratio = document.getElementById('ratio-select').value; const size = document.getElementById('size-select').value; const modelName = document.getElementById('model-input').value;
             const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon');
@@ -567,7 +680,8 @@
             formData.append('model', modelName); formData.append('prompt', prompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', batchSize); formData.append('response_format', 'url');
             validImages.forEach((file) => formData.append('image', file));
             try {
-                const response = await fetch(API_URL, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: formData });
+                const response = await fetch(currentApiUrl, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: formData });
+                
                 const data = await response.json(); const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
                 if (!response.ok) throw new Error(data.error?.message || "请求失败");
                 const results = data.data || (data.url ? [{url: data.url}] : []);
@@ -583,22 +697,18 @@
             currentMainImageUrl = url;
             const placeholder = document.getElementById('empty-placeholder'); const timeBadge = document.getElementById('time-badge');
             placeholder.classList.add('hidden'); imgWrapper.classList.remove('hidden'); document.getElementById('main-image').src = url;
-            if (refSrc) { document.getElementById('ref-image').src = refSrc; compareOverlay.classList.remove('hidden'); sliderHandle.classList.remove('hidden'); sliderHandle.style.left = '50%'; compareOverlay.style.clipPath = 'inset(0 50% 0 0)'; document.getElementById('compare-hint').classList.remove('hidden'); } 
-            else { compareOverlay.classList.add('hidden'); sliderHandle.classList.add('hidden'); document.getElementById('compare-hint').classList.add('hidden'); }
+            if (refSrc) { document.getElementById('ref-image').src = refSrc; compareOverlay.classList.remove('hidden'); sliderHandle.classList.remove('hidden'); sliderHandle.style.left = '50%'; compareOverlay.style.clipPath = 'inset(0 50% 0 0)'; } 
+            else { compareOverlay.classList.add('hidden'); sliderHandle.classList.add('hidden'); }
             resetZoom(); if(duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
         }
-        function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); document.getElementById('compare-hint').classList.add('hidden'); }
+        function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
         
-        // === 核心：添加历史记录与存储 ===
         function addToHistory(url, prompt, duration) {
-            // 1. 保存数据
             historyData.unshift({ url: url, prompt: prompt, duration: duration });
             saveHistoryToLocal();
-            // 2. 渲染界面
             renderHistoryItem(url, prompt, duration);
         }
 
-        // === 核心：渲染单个历史项 ===
         function renderHistoryItem(url, prompt, duration) {
             const list = document.getElementById('history-list');
             const empty = document.getElementById('history-empty'); if (empty) empty.remove();
@@ -606,7 +716,6 @@
             item.className = "history-item group relative flex-shrink-0 aspect-[4/3] h-full w-auto bg-gray-900 rounded-xl overflow-hidden border border-gray-700 cursor-pointer hover:border-purple-500 transition shadow-lg";
             item.dataset.url = url; item.dataset.prompt = encodeURIComponent(prompt); item.dataset.duration = duration;
             item.onclick = (e) => { if(!e.target.closest('.task-checkbox') && !e.target.closest('button')) { const decPrompt = decodeURIComponent(item.dataset.prompt); setMainImage(url, duration); document.getElementById('prompt-input').value = decPrompt; } };
-            // 修改：缩小了图标 w-6 h-6，增加了间距 gap-3
             item.innerHTML = `
                 <img src="${url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 pointer-events-none">
                 <div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
@@ -639,7 +748,6 @@
             const batchActions = document.getElementById('batch-actions'); 
             const titleLabel = document.getElementById('task-list-title');
 
-            // === 修改：更新文字显示选中数量 ===
             if(checked.length > 0) {
                 batchActions.classList.remove('hidden');
                 titleLabel.innerHTML = `已选 <span class="text-purple-500">${checked.length}</span> 项`;
@@ -667,7 +775,6 @@
             if(!confirm(`确认删除选中的 ${checked.length} 张任务吗？`)) return;
             checked.forEach(cb => {
                 const item = cb.closest('.history-item');
-                // 同步删除数据
                 const urlToRemove = item.dataset.url;
                 historyData = historyData.filter(d => d.url !== urlToRemove);
                 item.remove();
@@ -684,7 +791,6 @@
         function deleteHistoryItem(btn) { 
             const item = btn.closest('.history-item');
             if(item) { 
-                // 同步删除数据
                 const urlToRemove = item.dataset.url;
                 historyData = historyData.filter(d => d.url !== urlToRemove);
                 saveHistoryToLocal();
@@ -704,5 +810,3 @@
     </script>
 </body>
 </html>
-
-
